@@ -2,7 +2,7 @@ import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import './Stage1.css';
 
-export default function Stage1({ responses }) {
+export default function Stage1({ responses, toolOutputs }) {
   const [activeTab, setActiveTab] = useState(0);
 
   if (!responses || responses.length === 0) {
@@ -30,6 +30,19 @@ export default function Stage1({ responses }) {
         <div className="response-text markdown-content">
           <ReactMarkdown>{responses[activeTab].response}</ReactMarkdown>
         </div>
+
+        {toolOutputs && toolOutputs.length > 0 && (
+          <div className="tool-outputs">
+            <div className="tool-outputs-title">Tool context</div>
+            <ul>
+              {toolOutputs.map((item, idx) => (
+                <li key={idx}>
+                  <strong>{item.tool}:</strong> {item.result}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );

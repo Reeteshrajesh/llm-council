@@ -57,6 +57,44 @@ function App() {
     setCurrentConversationId(id);
   };
 
+  const handleDeleteConversation = async (id) => {
+    try {
+      await api.deleteConversation(id);
+      // Remove from conversations list
+      setConversations(conversations.filter((conv) => conv.id !== id));
+      // If deleting current conversation, clear it
+      if (id === currentConversationId) {
+        setCurrentConversationId(null);
+        setCurrentConversation(null);
+      }
+    } catch (error) {
+      console.error('Failed to delete conversation:', error);
+      alert('Failed to delete conversation');
+    }
+  };
+
+  const handleUpdateTitle = async (id, newTitle) => {
+    try {
+      await api.updateConversationTitle(id, newTitle);
+      // Update conversations list
+      setConversations(
+        conversations.map((conv) =>
+          conv.id === id ? { ...conv, title: newTitle } : conv
+        )
+      );
+      // Update current conversation if it's the one being edited
+      if (id === currentConversationId && currentConversation) {
+        setCurrentConversation({
+          ...currentConversation,
+          title: newTitle,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to update conversation title:', error);
+      alert('Failed to update conversation title');
+    }
+  };
+
   const handleSendMessage = async (content) => {
     if (!currentConversationId) return;
 
@@ -106,6 +144,10 @@ function App() {
               const messages = [...prev.messages];
               const lastMsg = messages[messages.length - 1];
               lastMsg.stage1 = event.data;
+              lastMsg.metadata = {
+                ...(lastMsg.metadata || {}),
+                ...(event.metadata || {}),
+              };
               lastMsg.loading.stage1 = false;
               return { ...prev, messages };
             });
@@ -125,7 +167,10 @@ function App() {
               const messages = [...prev.messages];
               const lastMsg = messages[messages.length - 1];
               lastMsg.stage2 = event.data;
-              lastMsg.metadata = event.metadata;
+              lastMsg.metadata = {
+                ...(lastMsg.metadata || {}),
+                ...(event.metadata || {}),
+              };
               lastMsg.loading.stage2 = false;
               return { ...prev, messages };
             });
@@ -145,6 +190,10 @@ function App() {
               const messages = [...prev.messages];
               const lastMsg = messages[messages.length - 1];
               lastMsg.stage3 = event.data;
+              lastMsg.metadata = {
+                ...(lastMsg.metadata || {}),
+                ...(event.metadata || {}),
+              };
               lastMsg.loading.stage3 = false;
               return { ...prev, messages };
             });
@@ -188,6 +237,8 @@ function App() {
         currentConversationId={currentConversationId}
         onSelectConversation={handleSelectConversation}
         onNewConversation={handleNewConversation}
+        onDeleteConversation={handleDeleteConversation}
+        onUpdateTitle={handleUpdateTitle}
       />
       <ChatInterface
         conversation={currentConversation}

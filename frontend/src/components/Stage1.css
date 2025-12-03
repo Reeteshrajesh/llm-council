@@ -63,3 +63,28 @@
   color: #333;
   line-height: 1.6;
 }
+
+.tool-outputs {
+  margin-top: 16px;
+  padding: 12px;
+  border: 1px dashed #d1d5db;
+  border-radius: 6px;
+  background: #f9fafb;
+}
+
+.tool-outputs-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #374151;
+}
+
+.tool-outputs ul {
+  list-style: disc;
+  padding-left: 20px;
+  margin: 0;
+  color: #4b5563;
+}
+
+.tool-outputs li + li {
+  margin-top: 4px;
+}

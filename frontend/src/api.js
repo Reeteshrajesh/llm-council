@@ -71,9 +71,19 @@ export const api = {
    * @param {string} conversationId - The conversation ID
    * @param {string} content - The message content
    * @param {function} onEvent - Callback function for each event: (eventType, data) => void
+   * @param {boolean} temporary - If true, don't save conversation to storage
    * @returns {Promise<void>}
    */
-  async sendMessageStream(conversationId, content, onEvent) {
+  async sendMessageStream(conversationId, content, onEvent, temporary = false) {
+    let context = [];
+
+    // Get conversation context (skip for temporary chats)
+    if (!temporary) {
+      const conversation = await this.getConversation(conversationId);
+      // Extract last 6 messages as context (3 exchanges)
+      context = conversation.messages.slice(-6);
+    }
+
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}/message/stream`,
       {
@@ -81,7 +91,11 @@ export const api = {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({
+          content,
+          context,
+          temporary  // Send temporary flag
+        }),
       }
     );
 
@@ -111,5 +125,44 @@ export const api = {
         }
       }
     }
+  },
+
+  /**
+   * Update conversation title.
+   * @param {string} conversationId - The conversation ID
+   * @param {string} title - New title
+   */
+  async updateConversationTitle(conversationId, title) {
+    const response = await fetch(
+      `${API_BASE}/api/conversations/${conversationId}/title`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ title }),
+      }
+    );
+    if (!response.ok) {
+      throw new Error('Failed to update conversation title');
+    }
+    return response.json();
+  },
+
+  /**
+   * Delete a conversation.
+   * @param {string} conversationId - The conversation ID
+   */
+  async deleteConversation(conversationId) {
+    const response = await fetch(
+      `${API_BASE}/api/conversations/${conversationId}`,
+      {
+        method: 'DELETE',
+      }
+    );
+    if (!response.ok) {
+      throw new Error('Failed to delete conversation');
+    }
+    return response.json();
   },
 };

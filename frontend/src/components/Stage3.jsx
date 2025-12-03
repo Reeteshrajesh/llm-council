@@ -1,7 +1,7 @@
 import ReactMarkdown from 'react-markdown';
 import './Stage3.css';
 
-export default function Stage3({ finalResponse }) {
+export default function Stage3({ finalResponse, tokenSavings }) {
   if (!finalResponse) {
     return null;
   }
@@ -16,6 +16,14 @@ export default function Stage3({ finalResponse }) {
         <div className="final-text markdown-content">
           <ReactMarkdown>{finalResponse.response}</ReactMarkdown>
         </div>
+
+        {/* Display token savings if available */}
+        {tokenSavings && tokenSavings.saved_tokens > 0 && (
+          <div className="token-savings">
+            💾 Saved {tokenSavings.saved_tokens.toLocaleString()} tokens
+            ({tokenSavings.saved_percent}%) using TOON format
+          </div>
+        )}
       </div>
     </div>
   );

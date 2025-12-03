@@ -38,9 +38,42 @@ Create a `.env` file in the project root:
 
 ```bash
 OPENROUTER_API_KEY=sk-or-v1-...
+# Storage backend: json (default), postgresql, or mysql
+DATABASE_TYPE=json
+
+# For PostgreSQL (when DATABASE_TYPE=postgresql)
+POSTGRESQL_URL=postgresql+psycopg2://user:password@localhost:5432/llmcouncil
+
+# For MySQL (when DATABASE_TYPE=mysql)
+MYSQL_URL=mysql+pymysql://user:password@localhost:3306/llmcouncil
 ```
 
 Get your API key at [openrouter.ai](https://openrouter.ai/). Make sure to purchase the credits you need, or sign up for automatic top up.
+
+### 3. Database setup (optional)
+
+The app defaults to JSON file storage (`DATABASE_TYPE=json`). To use a database instead:
+
+**PostgreSQL**
+1. Create a database and user:
+   ```bash
+   createdb llmcouncil
+   createuser llmcouncil_user
+   psql -c "ALTER USER llmcouncil_user WITH PASSWORD 'change-me';"
+   psql -c "GRANT ALL PRIVILEGES ON DATABASE llmcouncil TO llmcouncil_user;"
+   ```
+2. Set `DATABASE_TYPE=postgresql` and update `POSTGRESQL_URL` in `.env`.
+3. Restart the backend; tables auto-create on startup.
+
+**MySQL**
+1. Create a database and user:
+   ```bash
+   mysql -u root -p -e "CREATE DATABASE llmcouncil;"
+   mysql -u root -p -e "CREATE USER 'llmcouncil_user'@'%' IDENTIFIED BY 'change-me';"
+   mysql -u root -p -e "GRANT ALL PRIVILEGES ON llmcouncil.* TO 'llmcouncil_user'@'%';"
+   ```
+2. Set `DATABASE_TYPE=mysql` and update `MYSQL_URL` in `.env`.
+3. Restart the backend; tables auto-create on startup.
 
 ### 3. Configure Models (Optional)
 
